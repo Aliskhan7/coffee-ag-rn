@@ -1,14 +1,14 @@
 // contexts/AuthContext.tsx
-import React, { createContext, useState, useEffect } from 'react';
-import { auth } from '@/firebaseConfig';
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import { auth } from '../firebaseConfig';
 import { onAuthStateChanged, User } from 'firebase/auth';
 
 interface AuthContextProps {
-    user: User | null;
+    user: User | null | undefined;
 }
 
-export const AuthContext = createContext<AuthContextProps>({
-    user: null,
+const AuthContext = createContext<AuthContextProps>({
+    user: undefined,
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -21,12 +21,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return unsubscribe;
     }, []);
 
-    if (user === undefined) {
-        // Пока загружается состояние аутентификации, можно вернуть индикатор загрузки или null
-        return null;
-    }
-
     return (
         <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
     );
+};
+
+// Экспортируем хук useAuth
+export const useAuth = () => {
+    return useContext(AuthContext);
 };
