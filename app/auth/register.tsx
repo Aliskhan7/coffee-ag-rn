@@ -1,48 +1,58 @@
-// app/auth/register.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import { auth } from '@/firebaseConfig';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { Link } from 'expo-router';
+import { View, TextInput, Button, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
+import firebase from '@/firebaseConfig';
 
-export default function Register() {
+export default function RegisterScreen() {
+    const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleRegister = () => {
-        createUserWithEmailAndPassword(auth, email, password).catch((error) => {
-            alert(error.message);
-        });
+    const register = () => {
+        firebase
+            .auth()
+            .createUserWithEmailAndPassword(email, password)
+            .then(() => {
+                router.replace('/(authenticated)/');
+            })
+            .catch((error) => alert(error.message));
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Регистрация</Text>
             <TextInput
-                style={styles.input}
                 placeholder="Email"
-                value={email}
                 onChangeText={setEmail}
+                value={email}
+                style={styles.input}
+                keyboardType="email-address"
                 autoCapitalize="none"
             />
             <TextInput
-                style={styles.input}
                 placeholder="Пароль"
-                value={password}
-                onChangeText={setPassword}
                 secureTextEntry
+                onChangeText={setPassword}
+                value={password}
+                style={styles.input}
             />
-            <Button title="Зарегистрироваться" onPress={handleRegister} />
-            <Text style={styles.text}>
-                Уже есть аккаунт? <Link href="/auth/login">Войти</Link>
-            </Text>
+            <Button title="Зарегистрироваться" onPress={register} />
+            <Button title="Уже есть аккаунт? Войти" onPress={() => router.push('login')} />
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 16 },
-    title: { fontSize: 24, marginBottom: 16 },
-    input: { borderWidth: 1, borderColor: '#ccc', padding: 8, marginVertical: 8 },
-    text: { marginTop: 16 },
+    container: {
+        flex: 1,
+        padding: 20,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+    },
+    input: {
+        marginVertical: 10,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        padding: 10,
+        borderRadius: 5,
+    },
 });
